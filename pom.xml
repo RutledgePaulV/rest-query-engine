@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.rutledgepaulv</groupId>
-    <artifactId>parser</artifactId>
+    <artifactId>rest-query-engine</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
@@ -22,6 +22,10 @@
             <version>1.0</version>
         </dependency>
 
+        <!-- being used for the field type resolution for now. Would like to remove a dependency
+             on this for the parsing piece as this library should be backend agnostic. Any
+             decent object graph library should be able to implement the FieldTypeResolver interface
+             which is all that we need. In general I'd rather this project not rely on spring at all. -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
