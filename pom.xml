@@ -7,11 +7,30 @@
     <parent>
         <groupId>com.github.rutledgepaulv</groupId>
         <artifactId>maven</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
     </parent>
 
     <artifactId>rest-query-engine</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <name>rest-query-engine</name>
+    <url>http://github.com/rutledgepaulv/rest-query-engine</url>
+    <description>A library for parsing rsql queries into database queries for a REST API.</description>
+
+    <scm>
+        <url>http://github.com/rutledgepaulv/rest-query-engine</url>
+        <connection>scm:git:git@github.com:rutledgepaulv/rest-query-engine.git</connection>
+    </scm>
+
+    <ciManagement>
+        <system>travis</system>
+        <url>https://travis-ci.org/rutledgepaulv/rest-query-engine</url>
+    </ciManagement>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/rutledgepaulv/rest-query-engine/issues</url>
+    </issueManagement>
 
     <dependencies>
 
@@ -38,13 +57,6 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>2.2.0</version>
@@ -59,29 +71,6 @@
         </dependency>
 
     </dependencies>
-
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>2.19.1</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
 
 
 </project>

@@ -13,8 +13,7 @@ public class ConverterChain implements Iterable<ArgConverter>, ArgConverter {
 
     public ConverterChain() {}
 
-    public ConverterChain(List<ArgConverter> converters) {
-        this.converters = converters;
+    public ConverterChain(Iterable<ArgConverter> converters) {
         converters.forEach(this::appendInternal);
     }
 
