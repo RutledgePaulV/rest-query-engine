@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.github.rutledgepaulv</groupId>
             <artifactId>q-builders</artifactId>
-            <version>1.1</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
 
         <!-- being used for the field type resolution for now. Would like to remove a dependency

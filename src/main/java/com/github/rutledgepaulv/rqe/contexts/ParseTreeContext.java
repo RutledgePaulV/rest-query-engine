@@ -1,6 +1,6 @@
 package com.github.rutledgepaulv.rqe.contexts;
 
-import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
+import com.github.rutledgepaulv.qbuilders.nodes.LogicalNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,24 +8,14 @@ import java.util.Objects;
 
 public class ParseTreeContext {
 
-    private boolean root;
-    private AbstractNode parent;
+    private LogicalNode parent;
     private Map<String, Object> additionalInformation = new HashMap<>();
 
-
-    public boolean isRoot() {
-        return root;
-    }
-
-    public void setRoot(boolean root) {
-        this.root = root;
-    }
-
-    public AbstractNode getParent() {
+    public LogicalNode getParent() {
         return parent;
     }
 
-    public void setParent(AbstractNode parent) {
+    public void setParent(LogicalNode parent) {
         this.parent = parent;
     }
 
@@ -47,13 +37,12 @@ public class ParseTreeContext {
             return false;
         }
         ParseTreeContext that = (ParseTreeContext) o;
-        return root == that.root &&
-                Objects.equals(parent, that.parent) &&
+        return Objects.equals(parent, that.parent) &&
                 Objects.equals(additionalInformation, that.additionalInformation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(root, parent, additionalInformation);
+        return Objects.hash(parent, additionalInformation);
     }
 }
