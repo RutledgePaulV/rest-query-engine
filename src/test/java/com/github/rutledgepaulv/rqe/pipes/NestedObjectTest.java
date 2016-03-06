@@ -7,7 +7,7 @@ import com.github.rutledgepaulv.rqe.testsupport.User;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class NestedObjectFieldTests extends TestBase {
+public class NestedObjectTest extends TestBase {
 
     static {
         MODE = RunMode.TEST;
