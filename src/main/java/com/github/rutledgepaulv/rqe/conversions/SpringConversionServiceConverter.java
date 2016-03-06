@@ -1,5 +1,6 @@
 package com.github.rutledgepaulv.rqe.conversions;
 
+import com.github.rutledgepaulv.rqe.conversions.parsers.StringToInstantConverter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 
@@ -8,7 +9,9 @@ public class SpringConversionServiceConverter implements StringToTypeConverter {
     private ConversionService conversionService;
 
     public SpringConversionServiceConverter() {
-        this.conversionService = new DefaultConversionService();
+        DefaultConversionService conversions = new DefaultConversionService();
+        conversions.addConverter(new StringToInstantConverter());
+        this.conversionService = conversions;
     }
 
     public SpringConversionServiceConverter(ConversionService conversionService) {
