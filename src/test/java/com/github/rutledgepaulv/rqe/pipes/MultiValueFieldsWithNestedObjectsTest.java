@@ -21,11 +21,11 @@ public class MultiValueFieldsWithNestedObjectsTest extends TestBase {
 
         Condition<GeneralQueryBuilder> condition = pipeline.apply("comments.comment=='This is my first comment'", User.class);
 
-        assertMongo(condition, "{ \"address.hasCat\" : false}");
+        assertMongo(condition, "{ \"comments.comment\" : \"This is my first comment\"}");
 
         assertElasticsearch(condition, "{\n" +
                 "  \"term\" : {\n" +
-                "    \"address.hasCat\" : false\n" +
+                "    \"comments.comment\" : \"This is my first comment\"\n" +
                 "  }\n" +
                 "}");
 
