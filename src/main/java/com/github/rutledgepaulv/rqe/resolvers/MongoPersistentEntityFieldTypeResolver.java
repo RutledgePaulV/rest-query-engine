@@ -3,7 +3,9 @@ package com.github.rutledgepaulv.rqe.resolvers;
 import com.github.rutledgepaulv.rqe.contexts.PropertyPath;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
-public class MongoPersistentEntityFieldTypeResolver implements FieldTypeResolver {
+import java.util.function.BiFunction;
+
+public class MongoPersistentEntityFieldTypeResolver implements BiFunction<PropertyPath, Class<?>, Class<?>> {
 
     private MongoMappingContext context;
 

@@ -74,13 +74,13 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
     @Override
     public AbstractNode apply(Node node, Class<?> entityClass) {
         ConverterChain chain = new ConverterChain();
-        chain = chain.append(new OperatorSpecificConverter(subqueryPipeline(this, entityClass)));
+        chain = chain.append(new OperatorSpecificConverter(subqueryPipeline(this), fieldResolver));
         chain = chain.append(new EntityFieldTypeConverter(fieldResolver, stringToTypeConverter));
         return node.accept(new ConvertingVisitor(entityClass, chain), new ParseTreeContext());
     }
 
-    private Function<String, AbstractNode> subqueryPipeline(BiFunction<Node, Class<?>, AbstractNode> pipe, Class<?> clazz) {
-        return parsingPipe.andThen(node -> pipe.apply(node, clazz));
+    private BiFunction<String, Class<?>, AbstractNode> subqueryPipeline(BiFunction<Node, Class<?>, AbstractNode> pipe) {
+        return (rsql, clazz) -> parsingPipe.andThen(node -> pipe.apply(node, clazz)).apply(rsql);
     }
 
 
