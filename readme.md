@@ -70,6 +70,57 @@ public void predicate() {
 
 ```
 
+### Installation 
+
+#### Release Versions
+```xml
+<!-- production version not yet released -->
+```
+
+#### Snapshot Version
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.rutledgepaulv</groupId>
+        <artifactId>rest-query-engine</artifactId>
+        <version>0.5-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+
+
+<repositories>
+    <repository>
+        <id>ossrh</id>
+        <name>Repository for snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+
+#### Optional dependencies
+```xml
+<dependencies>
+    
+    <!-- only necessary if you're using the elasticsearch filter builder target type -->
+    <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>2.2.0</version>
+    </dependency>
+
+    <!-- only necessary if you're using the java.util.function.Predicate target type -->
+     <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.7.1</version>
+     </dependency>
+            
+</dependencies>
+```
 
 ### License
 
