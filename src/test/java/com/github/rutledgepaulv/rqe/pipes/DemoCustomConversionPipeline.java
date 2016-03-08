@@ -23,7 +23,7 @@ public class DemoCustomConversionPipeline {
     }
 
     public static class ChemicalCompound {
-        public MetaData metaData;
+        public List<MetaData> metaData;
     }
 
 
