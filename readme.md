@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/RutledgePaulV/rest-query-engine.svg)](https://travis-ci.org/RutledgePaulV/rest-query-engine)
-[![Coverage Status](https://coveralls.io/repos/github/RutledgePaulV/rest-query-engine/badge.svg?branch=master)](https://coveralls.io/github/RutledgePaulV/rest-query-engine?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/RutledgePaulV/rest-query-engine/badge.svg?branch=develop)](https://coveralls.io/github/RutledgePaulV/rest-query-engine?branch=develop)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.rutledgepaulv/rest-query-engine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.rutledgepaulv/rest-query-engine)
 
 
