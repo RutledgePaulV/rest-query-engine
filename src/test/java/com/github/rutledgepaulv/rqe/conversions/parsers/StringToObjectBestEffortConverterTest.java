@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 public class StringToObjectBestEffortConverterTest {
 
-    private StringToObjectBestEffortConverter it = new StringToObjectBestEffortConverter();
+    private static final StringToObjectBestEffortConverter it = new StringToObjectBestEffortConverter();
 
     @Test
     public void itConvertsBooleans() throws Exception {
@@ -41,5 +41,11 @@ public class StringToObjectBestEffortConverterTest {
         assertEquals(now, it.convert(now.toString()));
     }
 
+    @Test
+    public void ifItCantConvertToSomethingElseItJustReturnsTheString() throws Exception {
+        assertEquals("badgers", it.convert("badgers"));
+        assertEquals("chevron", it.convert("chevron"));
+        assertEquals("buggy", it.convert("buggy"));
+    }
 
 }
