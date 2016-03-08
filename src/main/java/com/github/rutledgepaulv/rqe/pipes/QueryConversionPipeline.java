@@ -3,8 +3,6 @@ package com.github.rutledgepaulv.rqe.pipes;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
 import com.github.rutledgepaulv.rqe.adapters.GeneralQueryBuilder;
-import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
-import com.github.rutledgepaulv.rqe.resolvers.MongoPersistentEntityFieldTypeResolver;
 import cz.jirutka.rsql.parser.ast.Node;
 
 import java.util.function.BiFunction;
@@ -19,7 +17,7 @@ public class QueryConversionPipeline implements BiFunction<String, Class<?>, Con
         private Function<Node, Node> preConversionTransformer = new IdentityPipe<>();
         private Function<AbstractNode, AbstractNode> postConversionTransformer = new IdentityPipe<>();
         private Function<AbstractNode, Condition<GeneralQueryBuilder>> queryBuildingPipe = new DefaultQueryBuildingPipe();
-        private BiFunction<Node, Class<?>, AbstractNode> argumentConversionPipe;
+        private BiFunction<Node, Class<?>, AbstractNode> argumentConversionPipe = DefaultArgumentConversionPipe.defaults();
 
 
         public QueryConversionPipelineBuilder useNonDefaultParsingPipe(Function<String, Node> parsingPipe) {
@@ -33,7 +31,7 @@ public class QueryConversionPipeline implements BiFunction<String, Class<?>, Con
             return this;
         }
 
-        public QueryConversionPipelineBuilder setArgumentConversionPipe(
+        public QueryConversionPipelineBuilder useNonDefaultArgumentConversionPipe(
                 BiFunction<Node, Class<?>, AbstractNode> argumentConversionPipe) {
             this.argumentConversionPipe = argumentConversionPipe;
             return this;
@@ -62,13 +60,7 @@ public class QueryConversionPipeline implements BiFunction<String, Class<?>, Con
     }
 
     public static QueryConversionPipeline defaultPipeline() {
-        return QueryConversionPipeline.builder()
-                .setArgumentConversionPipe(DefaultArgumentConversionPipe.builder()
-                        .setStringToTypeConverter(new SpringConversionServiceConverter())
-                        .setFieldResolver(new MongoPersistentEntityFieldTypeResolver())
-                        .setParsingPipe(new DefaultParsingPipe())
-                        .build())
-                .build();
+        return QueryConversionPipeline.builder().build();
     }
 
 

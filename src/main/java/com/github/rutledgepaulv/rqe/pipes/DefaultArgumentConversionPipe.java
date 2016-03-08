@@ -1,14 +1,17 @@
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
+import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
 import com.github.rutledgepaulv.rqe.argconverters.ConverterChain;
 import com.github.rutledgepaulv.rqe.argconverters.EntityFieldTypeConverter;
 import com.github.rutledgepaulv.rqe.argconverters.OperatorSpecificConverter;
 import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
 import com.github.rutledgepaulv.rqe.contexts.ParseTreeContext;
 import com.github.rutledgepaulv.rqe.contexts.PropertyPath;
+import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
 import com.github.rutledgepaulv.rqe.conversions.StringToTypeConverter;
 import com.github.rutledgepaulv.rqe.operators.QueryOperator;
+import com.github.rutledgepaulv.rqe.resolvers.MongoPersistentEntityFieldTypeResolver;
 import cz.jirutka.rsql.parser.ast.*;
 
 import java.util.Collection;
@@ -25,30 +28,40 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
 
     public static class DefaultArgumentConversionPipeBuilder {
 
-        private Function<String, Node> parsingPipe;
-        private StringToTypeConverter stringToTypeConverter;
-        private BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver;
+        private Function<String, Node> parsingPipe = new DefaultParsingPipe();
+        private StringToTypeConverter stringToTypeConverter = new SpringConversionServiceConverter();
+        private BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver = new MongoPersistentEntityFieldTypeResolver();
+        private List<ArgConverter> customConverters = new LinkedList<>();
 
-        public DefaultArgumentConversionPipeBuilder setParsingPipe(Function<String, Node> parsingPipe) {
+        public DefaultArgumentConversionPipeBuilder useNonDefaultParsingPipe(Function<String, Node> parsingPipe) {
             this.parsingPipe = parsingPipe;
             return this;
         }
 
-        public DefaultArgumentConversionPipeBuilder setStringToTypeConverter(
+        public DefaultArgumentConversionPipeBuilder useNonDefaultStringToTypeConverter(
                 StringToTypeConverter stringToTypeConverter) {
             this.stringToTypeConverter = stringToTypeConverter;
             return this;
         }
 
-        public DefaultArgumentConversionPipeBuilder setFieldResolver(
+        public DefaultArgumentConversionPipeBuilder useNonDefaultFieldResolver(
                 BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver) {
             this.fieldResolver = fieldResolver;
             return this;
         }
 
-        public DefaultArgumentConversionPipe build() {
-            return new DefaultArgumentConversionPipe(parsingPipe, stringToTypeConverter, fieldResolver);
+        public DefaultArgumentConversionPipeBuilder addCustomArgumentConverter(ArgConverter fieldResolver) {
+            this.customConverters.add(fieldResolver);
+            return this;
         }
+
+        public DefaultArgumentConversionPipe build() {
+            return new DefaultArgumentConversionPipe(this);
+        }
+    }
+
+    public static DefaultArgumentConversionPipe defaults() {
+        return new DefaultArgumentConversionPipeBuilder().build();
     }
 
     public static DefaultArgumentConversionPipeBuilder builder() {
@@ -58,24 +71,28 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
     private Function<String, Node> parsingPipe;
     private StringToTypeConverter stringToTypeConverter;
     private BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver;
+    private Collection<ArgConverter> customConverters = new LinkedList<>();
 
 
-    private DefaultArgumentConversionPipe(
-            Function<String, Node> parsingPipe,
-            StringToTypeConverter stringToTypeConverter,
-            BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver) {
-
-        this.parsingPipe = Objects.requireNonNull(parsingPipe);
-        this.stringToTypeConverter = Objects.requireNonNull(stringToTypeConverter);
-        this.fieldResolver = Objects.requireNonNull(fieldResolver);
+    private DefaultArgumentConversionPipe(DefaultArgumentConversionPipeBuilder builder) {
+        this.parsingPipe = Objects.requireNonNull(builder.parsingPipe);
+        this.stringToTypeConverter = Objects.requireNonNull(builder.stringToTypeConverter);
+        this.fieldResolver = Objects.requireNonNull(builder.fieldResolver);
+        this.customConverters.addAll(builder.customConverters);
     }
 
 
     @Override
     public AbstractNode apply(Node node, Class<?> entityClass) {
         ConverterChain chain = new ConverterChain();
+
+        for(ArgConverter converter : customConverters) {
+            chain = chain.append(converter);
+        }
+
         chain = chain.append(new OperatorSpecificConverter(subqueryPipeline(this), fieldResolver));
         chain = chain.append(new EntityFieldTypeConverter(fieldResolver, stringToTypeConverter));
+
         return node.accept(new ConvertingVisitor(entityClass, chain), new ParseTreeContext());
     }
 
@@ -124,17 +141,20 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
         public AbstractNode visit(ComparisonNode node, ParseTreeContext param) {
 
             PropertyPath path = new PropertyPath(node.getSelector());
-            ArgConversionContext context = new ArgConversionContext(path, entityClass, node.getArguments());
+            QueryOperator operator = QueryOperator.fromParserOperator(node.getOperator());
+
+            ArgConversionContext context = new ArgConversionContext()
+                    .setChain(converterChain)
+                    .setEntityType(entityClass)
+                    .setValues(node.getArguments())
+                    .setPropertyPath(path)
+                    .setQueryOperator(operator);
 
             com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode leaf =
                     new com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode(param.getParent());
 
-            QueryOperator operator = QueryOperator.fromParserOperator(node.getOperator());
-
-            leaf.setOperator(operator.qbuilderOperator());
-            context.setQueryOperator(operator);
-
             leaf.setField(path.getRawPath());
+            leaf.setOperator(operator.qbuilderOperator());
             leaf.setValues(converterChain.apply(context));
 
             return leaf;
