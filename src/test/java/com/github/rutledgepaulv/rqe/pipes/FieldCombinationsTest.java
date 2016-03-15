@@ -1,17 +1,13 @@
 package com.github.rutledgepaulv.rqe.pipes;
 
+import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
-import com.github.rutledgepaulv.qbuilders.visitors.ElasticsearchVisitor;
-import com.github.rutledgepaulv.qbuilders.visitors.MongoVisitor;
-import com.github.rutledgepaulv.qbuilders.visitors.RSQLVisitor;
-import com.github.rutledgepaulv.rqe.adapters.GeneralQueryBuilder;
-import com.github.rutledgepaulv.rqe.testsupport.CommentQuery;
-import com.github.rutledgepaulv.rqe.testsupport.User;
-import com.github.rutledgepaulv.rqe.testsupport.UserQuery;
+import com.github.rutledgepaulv.qbuilders.visitors.*;
+import com.github.rutledgepaulv.rqe.testsupport.*;
 import org.junit.Test;
 
-import static java.time.Instant.EPOCH;
-import static org.junit.Assert.assertEquals;
+import static java.time.Instant.*;
+import static org.junit.Assert.*;
 
 public class FieldCombinationsTest extends TestBase {
 
@@ -34,7 +30,7 @@ public class FieldCombinationsTest extends TestBase {
 
         assertEquals("(age==\"23\";firstName==\"Paul\")", parsed.query(new RSQLVisitor()));
         assertEquals(query.query(new MongoVisitor()), parsed.query(new MongoVisitor()));
-        assertEquals(query.query(new ElasticsearchVisitor()).toString(), parsed.query(new ElasticsearchVisitor()).toString());
+        assertEquals(query.query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context()).toString(), parsed.query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context()).toString());
 
         assertMongo(parsed, "{ \"$and\" : [ { \"age\" : 23} , { \"firstName\" : \"Paul\"}]}");
 
@@ -66,7 +62,7 @@ public class FieldCombinationsTest extends TestBase {
 
         assertEquals("(age==\"23\",firstName==\"Paul\")", parsed.query(new RSQLVisitor()));
         assertEquals(query.query(new MongoVisitor()), parsed.query(new MongoVisitor()));
-        assertEquals(query.query(new ElasticsearchVisitor()).toString(), parsed.query(new ElasticsearchVisitor()).toString());
+        assertEquals(query.query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context()).toString(), parsed.query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context()).toString());
 
         assertMongo(parsed, "{ \"$or\" : [ { \"age\" : 23} , { \"firstName\" : \"Paul\"}]}");
 
@@ -126,11 +122,11 @@ public class FieldCombinationsTest extends TestBase {
                 "          \"bool\" : {\n" +
                 "            \"should\" : [ {\n" +
                 "              \"term\" : {\n" +
-                "                \"comment\" : \"Test\"\n" +
+                "                \"comments.comment\" : \"Test\"\n" +
                 "              }\n" +
                 "            }, {\n" +
                 "              \"term\" : {\n" +
-                "                \"timestamp\" : \"1970-01-01T00:00:00Z\"\n" +
+                "                \"comments.timestamp\" : \"1970-01-01T00:00:00Z\"\n" +
                 "              }\n" +
                 "            } ]\n" +
                 "          }\n" +
@@ -183,11 +179,11 @@ public class FieldCombinationsTest extends TestBase {
                 "          \"bool\" : {\n" +
                 "            \"must\" : [ {\n" +
                 "              \"term\" : {\n" +
-                "                \"comment\" : \"Test\"\n" +
+                "                \"comments.comment\" : \"Test\"\n" +
                 "              }\n" +
                 "            }, {\n" +
                 "              \"term\" : {\n" +
-                "                \"timestamp\" : \"1970-01-01T00:00:00Z\"\n" +
+                "                \"comments.timestamp\" : \"1970-01-01T00:00:00Z\"\n" +
                 "              }\n" +
                 "            } ]\n" +
                 "          }\n" +

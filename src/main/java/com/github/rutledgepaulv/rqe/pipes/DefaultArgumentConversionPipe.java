@@ -1,6 +1,7 @@
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
+import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
 import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
 import com.github.rutledgepaulv.rqe.argconverters.ConverterChain;
 import com.github.rutledgepaulv.rqe.argconverters.EntityFieldTypeConverter;
@@ -153,7 +154,7 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
             com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode leaf =
                     new com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode(param.getParent());
 
-            leaf.setField(path.getRawPath());
+            leaf.setField(new FieldPath(path.getRawPath()));
             leaf.setOperator(operator.qbuilderOperator());
             leaf.setValues(converterChain.apply(context));
 

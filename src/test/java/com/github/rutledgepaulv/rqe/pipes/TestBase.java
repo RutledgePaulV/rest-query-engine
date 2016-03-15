@@ -24,7 +24,7 @@ public abstract class TestBase {
     }
 
     public void assertElasticsearch(Condition<?> condition, String expected) {
-        QueryBuilder criteria = condition.query(new ElasticsearchVisitor());
+        QueryBuilder criteria = condition.query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
         String actual = criteria.toString();
         doOrPrint(() -> assertEquals(expected, actual), actual);
     }
