@@ -170,7 +170,8 @@ public class DemoCustomConversionPipeline {
 
         String rsql = "metaData=q='name==\"license\" and value==\"CC BY-SA\" and metaData=q=\"name==notLicense\"'";
 
-        QueryBuilder builder = pipeline.apply(rsql, ChemicalCompound.class).query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
+        QueryBuilder builder = pipeline.apply(rsql, ChemicalCompound.class)
+                                       .query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
 
 
         assertEquals("{\n" +
