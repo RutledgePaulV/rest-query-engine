@@ -1,8 +1,10 @@
 package com.github.rutledgepaulv.rqe.pipes;
 
+import com.github.rutledgepaulv.qbuilders.visitors.ElasticsearchVisitor;
 import com.github.rutledgepaulv.qbuilders.visitors.MongoVisitor;
 import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
 import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.query.Criteria;
 
@@ -132,6 +134,34 @@ public class DemoCustomConversionPipeline {
                 criteria.getCriteriaObject().toString());
 
 
+    }
+
+
+    @Test
+    public void nestedQueryAgainstElasticsearchMaintainsFieldPathNameOnNestedElements() {
+
+        String rsql = "metaData=q='name==\"license\" and value==\"CC BY-SA\"'";
+        QueryBuilder builder = pipeline.apply(rsql, ChemicalCompound.class).query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
+
+
+        assertEquals("{\n" +
+                "  \"nested\" : {\n" +
+                "    \"query\" : {\n" +
+                "      \"bool\" : {\n" +
+                "        \"must\" : [ {\n" +
+                "          \"term\" : {\n" +
+                "            \"metaData.name\" : \"license\"\n" +
+                "          }\n" +
+                "        }, {\n" +
+                "          \"term\" : {\n" +
+                "            \"metaData.value\" : \"CC BY-SA\"\n" +
+                "          }\n" +
+                "        } ]\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"path\" : \"metaData\"\n" +
+                "  }\n" +
+                "}",builder.toString());
     }
 
 

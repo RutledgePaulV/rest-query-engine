@@ -68,11 +68,11 @@ public class MultiValueFieldsWithNestedObjectsTest extends TestBase {
                 "      \"bool\" : {\n" +
                 "        \"must\" : [ {\n" +
                 "          \"term\" : {\n" +
-                "            \"comment\" : \"This is my first comment\"\n" +
+                "            \"comments.comment\" : \"This is my first comment\"\n" +
                 "          }\n" +
                 "        }, {\n" +
                 "          \"exists\" : {\n" +
-                "            \"field\" : \"timestamp\"\n" +
+                "            \"field\" : \"comments.timestamp\"\n" +
                 "          }\n" +
                 "        } ]\n" +
                 "      }\n" +

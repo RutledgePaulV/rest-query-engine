@@ -2,27 +2,20 @@ package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
 import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
-import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
-import com.github.rutledgepaulv.rqe.argconverters.ConverterChain;
-import com.github.rutledgepaulv.rqe.argconverters.EntityFieldTypeConverter;
-import com.github.rutledgepaulv.rqe.argconverters.OperatorSpecificConverter;
-import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
-import com.github.rutledgepaulv.rqe.contexts.ParseTreeContext;
-import com.github.rutledgepaulv.rqe.contexts.PropertyPath;
+import com.github.rutledgepaulv.qbuilders.visitors.AbstractVoidContextNodeVisitor;
+import com.github.rutledgepaulv.rqe.argconverters.*;
+import com.github.rutledgepaulv.rqe.contexts.*;
 import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
 import com.github.rutledgepaulv.rqe.conversions.StringToTypeConverter;
 import com.github.rutledgepaulv.rqe.operators.QueryOperator;
 import com.github.rutledgepaulv.rqe.resolvers.MongoPersistentEntityFieldTypeResolver;
 import cz.jirutka.rsql.parser.ast.*;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>, AbstractNode> {
 
@@ -156,9 +149,39 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
 
             leaf.setField(new FieldPath(path.getRawPath()));
             leaf.setOperator(operator.qbuilderOperator());
-            leaf.setValues(converterChain.apply(context));
+
+            Collection<?> values = converterChain.apply(context);
+
+            // add parent context to any AST nodes that were created
+            values.stream().filter(AbstractNode.class::isInstance)
+                  .map(AbstractNode.class::cast).forEach(converted ->
+                    addParentNamespace(leaf.getField(),converted));
+
+            leaf.setValues(values);
 
             return leaf;
+        }
+
+        private void addParentNamespace(FieldPath parent, AbstractNode abstractNode) {
+            abstractNode.visit(new AbstractVoidContextNodeVisitor<Void>() {
+                @Override
+                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.AndNode node) {
+                    node.getChildren().stream().forEach(this::visitAny);
+                    return null;
+                }
+
+                @Override
+                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.OrNode node) {
+                    node.getChildren().stream().forEach(this::visitAny);
+                    return null;
+                }
+
+                @Override
+                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode node) {
+                    node.setField(node.getField().prepend(parent));
+                    return null;
+                }
+            });
         }
 
 
