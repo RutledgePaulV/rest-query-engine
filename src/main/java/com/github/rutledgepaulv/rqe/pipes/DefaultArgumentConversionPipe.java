@@ -2,13 +2,14 @@ package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
 import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
-import com.github.rutledgepaulv.qbuilders.visitors.AbstractVoidContextNodeVisitor;
 import com.github.rutledgepaulv.rqe.argconverters.*;
-import com.github.rutledgepaulv.rqe.contexts.*;
+import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
+import com.github.rutledgepaulv.rqe.contexts.ParseTreeContext;
 import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
 import com.github.rutledgepaulv.rqe.conversions.StringToTypeConverter;
 import com.github.rutledgepaulv.rqe.operators.QueryOperator;
 import com.github.rutledgepaulv.rqe.resolvers.MongoPersistentEntityFieldTypeResolver;
+import com.github.rutledgepaulv.rqe.utils.TriFunction;
 import cz.jirutka.rsql.parser.ast.*;
 
 import java.util.*;
@@ -17,14 +18,14 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
 
-public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>, AbstractNode> {
-
+public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>, AbstractNode>,
+                                                      TriFunction<Node, Class<?>, ParseTreeContext, AbstractNode> {
 
     public static class DefaultArgumentConversionPipeBuilder {
 
         private Function<String, Node> parsingPipe = new DefaultParsingPipe();
         private StringToTypeConverter stringToTypeConverter = new SpringConversionServiceConverter();
-        private BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver = new MongoPersistentEntityFieldTypeResolver();
+        private BiFunction<FieldPath, Class<?>, Class<?>> fieldResolver = new MongoPersistentEntityFieldTypeResolver();
         private List<ArgConverter> customConverters = new LinkedList<>();
 
         public DefaultArgumentConversionPipeBuilder useNonDefaultParsingPipe(Function<String, Node> parsingPipe) {
@@ -39,7 +40,7 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
         }
 
         public DefaultArgumentConversionPipeBuilder useNonDefaultFieldResolver(
-                BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver) {
+                BiFunction<FieldPath, Class<?>, Class<?>> fieldResolver) {
             this.fieldResolver = fieldResolver;
             return this;
         }
@@ -64,7 +65,7 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
 
     private Function<String, Node> parsingPipe;
     private StringToTypeConverter stringToTypeConverter;
-    private BiFunction<PropertyPath, Class<?>, Class<?>> fieldResolver;
+    private BiFunction<FieldPath, Class<?>, Class<?>> fieldResolver;
     private Collection<ArgConverter> customConverters = new LinkedList<>();
 
 
@@ -78,6 +79,11 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
 
     @Override
     public AbstractNode apply(Node node, Class<?> entityClass) {
+        return apply(node, entityClass, new ParseTreeContext());
+    }
+
+    @Override
+    public AbstractNode apply(Node node, Class<?> entityClass, ParseTreeContext parseTreeContext) {
         ConverterChain chain = new ConverterChain();
 
         for(ArgConverter converter : customConverters) {
@@ -87,11 +93,13 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
         chain = chain.append(new OperatorSpecificConverter(subqueryPipeline(this), fieldResolver));
         chain = chain.append(new EntityFieldTypeConverter(fieldResolver, stringToTypeConverter));
 
-        return node.accept(new ConvertingVisitor(entityClass, chain), new ParseTreeContext());
+        return node.accept(new ConvertingVisitor(entityClass, chain), parseTreeContext);
     }
 
-    private BiFunction<String, Class<?>, AbstractNode> subqueryPipeline(BiFunction<Node, Class<?>, AbstractNode> pipe) {
-        return (rsql, clazz) -> parsingPipe.andThen(node -> pipe.apply(node, clazz)).apply(rsql);
+
+    private TriFunction<String, Class<?>, ParseTreeContext, AbstractNode> subqueryPipeline(TriFunction<Node, Class<?>, ParseTreeContext, AbstractNode> pipe) {
+        return (rsql, clazz, parseTreeContext) -> parsingPipe.andThen(node ->
+                        pipe.apply(node, clazz, parseTreeContext)).apply(rsql);
     }
 
 
@@ -134,8 +142,13 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
         @Override
         public AbstractNode visit(ComparisonNode node, ParseTreeContext param) {
 
-            PropertyPath path = new PropertyPath(node.getSelector());
             QueryOperator operator = QueryOperator.fromParserOperator(node.getOperator());
+
+            FieldPath path = new FieldPath(node.getSelector());
+
+            if(param.getParentPath().isPresent()) {
+                path = path.prepend(param.getParentPath().get());
+            }
 
             ArgConversionContext context = new ArgConversionContext()
                     .setChain(converterChain)
@@ -147,41 +160,11 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
             com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode leaf =
                     new com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode(param.getParent());
 
-            leaf.setField(new FieldPath(path.getRawPath()));
+            leaf.setField(path);
             leaf.setOperator(operator.qbuilderOperator());
-
-            Collection<?> values = converterChain.apply(context);
-
-            // add parent context to any AST nodes that were created
-            values.stream().filter(AbstractNode.class::isInstance)
-                  .map(AbstractNode.class::cast).forEach(converted ->
-                    addParentNamespace(leaf.getField(),converted));
-
-            leaf.setValues(values);
+            leaf.setValues(converterChain.apply(context));
 
             return leaf;
-        }
-
-        private void addParentNamespace(FieldPath parent, AbstractNode abstractNode) {
-            abstractNode.visit(new AbstractVoidContextNodeVisitor<Void>() {
-                @Override
-                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.AndNode node) {
-                    node.getChildren().stream().forEach(this::visitAny);
-                    return null;
-                }
-
-                @Override
-                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.OrNode node) {
-                    node.getChildren().stream().forEach(this::visitAny);
-                    return null;
-                }
-
-                @Override
-                protected Void visit(com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode node) {
-                    node.setField(node.getField().prepend(parent));
-                    return null;
-                }
-            });
         }
 
 

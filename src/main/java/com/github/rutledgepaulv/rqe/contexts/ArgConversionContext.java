@@ -1,5 +1,6 @@
 package com.github.rutledgepaulv.rqe.contexts;
 
+import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
 import com.github.rutledgepaulv.rqe.argconverters.ConverterChain;
 import com.github.rutledgepaulv.rqe.operators.QueryOperator;
 
@@ -9,7 +10,7 @@ public class ArgConversionContext {
 
     private ConverterChain chain;
     private Class<?> entityType;
-    private PropertyPath propertyPath;
+    private FieldPath propertyPath;
     private List<String> values;
     private QueryOperator queryOperator;
     private Map<String, Object> additionalInformation = new HashMap<>();
@@ -23,6 +24,7 @@ public class ArgConversionContext {
         this.values = new LinkedList<>(clone.values);
         this.queryOperator = clone.queryOperator;
         this.additionalInformation = new HashMap<>(clone.additionalInformation);
+        this.chain = new ConverterChain(clone.chain);
     }
 
     public List<String> getValues() {
@@ -43,11 +45,11 @@ public class ArgConversionContext {
         return this;
     }
 
-    public PropertyPath getPropertyPath() {
+    public FieldPath getPropertyPath() {
         return propertyPath;
     }
 
-    public ArgConversionContext setPropertyPath(PropertyPath propertyPath) {
+    public ArgConversionContext setPropertyPath(FieldPath propertyPath) {
         this.propertyPath = propertyPath;
         return this;
     }
@@ -80,6 +82,7 @@ public class ArgConversionContext {
         return this;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -89,17 +92,16 @@ public class ArgConversionContext {
             return false;
         }
         ArgConversionContext that = (ArgConversionContext) o;
-        return Objects.equals(entityType, that.entityType) &&
+        return Objects.equals(chain, that.chain) &&
+                Objects.equals(entityType, that.entityType) &&
                 Objects.equals(propertyPath, that.propertyPath) &&
                 Objects.equals(values, that.values) &&
-                Objects.equals(queryOperator, that.queryOperator) &&
-                Objects.equals(chain, that.chain) &&
+                queryOperator == that.queryOperator &&
                 Objects.equals(additionalInformation, that.additionalInformation);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityType, propertyPath, values, queryOperator, chain, additionalInformation);
+        return Objects.hash(chain, entityType, propertyPath, values, queryOperator, additionalInformation);
     }
-
 }

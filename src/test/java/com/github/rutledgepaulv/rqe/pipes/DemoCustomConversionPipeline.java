@@ -41,6 +41,7 @@ public class DemoCustomConversionPipeline {
         private String unit;
         private String url;
         private Object value;
+        private List<MetaData> metaData;
     }
 
 
@@ -57,7 +58,7 @@ public class DemoCustomConversionPipeline {
 
         @Override
         public boolean supports(ArgConversionContext context) {
-            return "value".equals(context.getPropertyPath().getRawPath()) &&
+            return "value".equals(context.getPropertyPath().asKey()) &&
                      context.getEntityType().equals(MetaData.class) &&
                     !context.getValues().isEmpty();
         }
@@ -164,6 +165,41 @@ public class DemoCustomConversionPipeline {
                 "}",builder.toString());
     }
 
+    @Test
+    public void multipleDepthsOfNested() {
 
+        String rsql = "metaData=q='name==\"license\" and value==\"CC BY-SA\" and metaData=q=\"name==notLicense\"'";
+
+        QueryBuilder builder = pipeline.apply(rsql, ChemicalCompound.class).query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
+
+
+        assertEquals("{\n" +
+                "  \"nested\" : {\n" +
+                "    \"query\" : {\n" +
+                "      \"bool\" : {\n" +
+                "        \"must\" : [ {\n" +
+                "          \"term\" : {\n" +
+                "            \"metaData.name\" : \"license\"\n" +
+                "          }\n" +
+                "        }, {\n" +
+                "          \"term\" : {\n" +
+                "            \"metaData.value\" : \"CC BY-SA\"\n" +
+                "          }\n" +
+                "        }, {\n" +
+                "          \"nested\" : {\n" +
+                "            \"query\" : {\n" +
+                "              \"term\" : {\n" +
+                "                \"metaData.metaData.name\" : \"notLicense\"\n" +
+                "              }\n" +
+                "            },\n" +
+                "            \"path\" : \"metaData.metaData\"\n" +
+                "          }\n" +
+                "        } ]\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"path\" : \"metaData\"\n" +
+                "  }\n" +
+                "}",builder.toString());
+    }
 
 }
