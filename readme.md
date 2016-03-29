@@ -83,7 +83,7 @@ public void predicate() {
     <dependency>
         <groupId>com.github.rutledgepaulv</groupId>
         <artifactId>rest-query-engine</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.6.3-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
