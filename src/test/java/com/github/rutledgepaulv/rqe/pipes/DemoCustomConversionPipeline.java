@@ -2,17 +2,14 @@ package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.visitors.ElasticsearchVisitor;
 import com.github.rutledgepaulv.qbuilders.visitors.MongoVisitor;
-import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
-import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.Test;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * {@see https://github.com/RutledgePaulV/rest-query-engine/issues/3}
@@ -20,12 +17,13 @@ import static org.junit.Assert.assertEquals;
 public class DemoCustomConversionPipeline {
 
 
-    public static class Root {
-        ChemicalCompound chemicalCompound;
+    public static class Spectra {
+        private List<ChemicalCompound> compounds = new LinkedList<>();
     }
 
     public static class ChemicalCompound {
-        public List<MetaData> metaData;
+        private String name;
+        private List<MetaData> metaData = new LinkedList<>();
     }
 
 
@@ -41,96 +39,94 @@ public class DemoCustomConversionPipeline {
         private String unit;
         private String url;
         private Object value;
-        private List<MetaData> metaData;
+        private List<MetaData> metaData = new LinkedList<>();
     }
 
 
-    private QueryConversionPipeline pipeline = QueryConversionPipeline.builder()
-            .useNonDefaultArgumentConversionPipe(DefaultArgumentConversionPipe.builder()
-                    .addCustomArgumentConverter(new MetaDataValuePropertyConversionPipe())
-                    .build())
-            .build();
-
-
-
-
-    private static class MetaDataValuePropertyConversionPipe implements ArgConverter {
-
-        @Override
-        public boolean supports(ArgConversionContext context) {
-            return "value".equals(context.getPropertyPath().asKey()) &&
-                     context.getEntityType().equals(MetaData.class) &&
-                    !context.getValues().isEmpty();
-        }
-
-        @Override
-        public List<?> apply(ArgConversionContext argConversionContext) {
-            String value = argConversionContext.getValues().stream().findFirst().get();
-
-            if (Boolean.TRUE.toString().equals(value)) {
-                return singletonList(true);
-            } else if (Boolean.FALSE.toString().equals(value)) {
-                return singletonList(false);
-            }
-
-            Optional<Number> number = tryParseNumber(value);
-            if (number.isPresent()) {
-                return singletonList(number.get());
-            }
-
-            return singletonList(value);
-        }
-
-
-        private static Optional<Number> tryParseNumber(String value) {
-            try {
-                return Optional.of(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                try {
-                    return Optional.of(Double.parseDouble(value));
-                } catch (NumberFormatException e2) {
-                    return Optional.empty();
-                }
-            }
-        }
-
-
-    }
-
-
+    private QueryConversionPipeline pipeline = QueryConversionPipeline.builder().build();
 
 
     @Test
-    public void test() {
+    public void doubleNestedQuery() {
+
+        String rsql = "compounds=q='name==\"Test\";metaData=q=\"(category==Acid;hidden==false)\"'";
+
+        Criteria criteria = pipeline.apply(rsql, Spectra.class).query(new MongoVisitor());
+        assertEquals("{ \"compounds\" : { \"$elemMatch\" : { \"$and\" : " +
+                "[ { \"name\" : \"Test\"} , { \"metaData\" : { \"$elemMatch\" :" +
+                " { \"$and\" : [ { \"category\" : \"Acid\"} ," +
+                " { \"hidden\" : false}]}}}]}}}", criteria.getCriteriaObject().toString());
+
+
+        QueryBuilder builder = pipeline.apply(rsql, Spectra.class)
+                .query(new ElasticsearchVisitor(), new ElasticsearchVisitor.Context());
+
+        assertEquals("{\n" +
+                "  \"nested\" : {\n" +
+                "    \"query\" : {\n" +
+                "      \"bool\" : {\n" +
+                "        \"must\" : [ {\n" +
+                "          \"term\" : {\n" +
+                "            \"compounds.name\" : \"Test\"\n" +
+                "          }\n" +
+                "        }, {\n" +
+                "          \"nested\" : {\n" +
+                "            \"query\" : {\n" +
+                "              \"bool\" : {\n" +
+                "                \"must\" : [ {\n" +
+                "                  \"term\" : {\n" +
+                "                    \"compounds.metaData.category\" : \"Acid\"\n" +
+                "                  }\n" +
+                "                }, {\n" +
+                "                  \"term\" : {\n" +
+                "                    \"compounds.metaData.hidden\" : false\n" +
+                "                  }\n" +
+                "                } ]\n" +
+                "              }\n" +
+                "            },\n" +
+                "            \"path\" : \"compounds.metaData\"\n" +
+                "          }\n" +
+                "        } ]\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"path\" : \"compounds\"\n" +
+                "  }\n" +
+                "}", builder.toString());
+
+    }
+
+
+    @Test
+    public void testNestedQueries() {
 
         Criteria criteria;
         String rsql;
 
 
-        rsql = "chemicalCompound.metaData=q='name==\"total exact mass\" and value=gt=411.31 and value=lt=411.4'";
-        criteria = pipeline.apply(rsql, Root.class).query(new MongoVisitor());
-        assertEquals("{ \"chemicalCompound.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
+        rsql = "compounds.metaData=q='name==\"total exact mass\" and value=gt=411.31 and value=lt=411.4'";
+        criteria = pipeline.apply(rsql, Spectra.class).query(new MongoVisitor());
+        assertEquals("{ \"compounds.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
                 " [ { \"name\" : \"total exact mass\"} , { \"value\" : { \"$gt\" : 411.31}} ," +
                 " { \"value\" : { \"$lt\" : 411.4}}]}}}", criteria.getCriteriaObject().toString());
 
 
-        rsql = "chemicalCompound.metaData=q='name==\"total exact mass\" and value=gt=1 and value=lt=5'";
-        criteria = pipeline.apply(rsql, Root.class).query(new MongoVisitor());
-        assertEquals("{ \"chemicalCompound.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
+        rsql = "compounds.metaData=q='name==\"total exact mass\" and value=gt=1 and value=lt=5'";
+        criteria = pipeline.apply(rsql, Spectra.class).query(new MongoVisitor());
+        assertEquals("{ \"compounds.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
                 " [ { \"name\" : \"total exact mass\"} , { \"value\" : { \"$gt\" : 1}} ," +
                 " { \"value\" : { \"$lt\" : 5}}]}}}", criteria.getCriteriaObject().toString());
 
 
-        rsql = "chemicalCompound.metaData=q='name==\"total exact mass\" and value==true'";
-        criteria = pipeline.apply(rsql, Root.class).query(new MongoVisitor());
-        assertEquals("{ \"chemicalCompound.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
+        rsql = "compounds.metaData=q='name==\"total exact mass\" and value==true'";
+        criteria = pipeline.apply(rsql, Spectra.class).query(new MongoVisitor());
+        assertEquals("{ \"compounds.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
                 " [ { \"name\" : \"total exact mass\"} , { \"value\" : true}]}}}",
                 criteria.getCriteriaObject().toString());
 
 
-        rsql = "chemicalCompound.metaData=q='name==\"total exact mass\" and value==false'";
-        criteria = pipeline.apply(rsql, Root.class).query(new MongoVisitor());
-        assertEquals("{ \"chemicalCompound.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
+        rsql = "compounds.metaData=q='name==\"total exact mass\" and value==false'";
+        criteria = pipeline.apply(rsql, Spectra.class).query(new MongoVisitor());
+        assertEquals("{ \"compounds.metaData\" : { \"$elemMatch\" : { \"$and\" :" +
                 " [ { \"name\" : \"total exact mass\"} , { \"value\" : false}]}}}",
                 criteria.getCriteriaObject().toString());
 
