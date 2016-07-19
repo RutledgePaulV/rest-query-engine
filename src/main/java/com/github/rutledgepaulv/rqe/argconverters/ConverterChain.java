@@ -19,7 +19,8 @@ public class ConverterChain implements Iterable<ArgConverter>, ArgConverter {
 
     public ConverterChain(ConverterChain clone) {
         clone.converters.forEach(this::appendInternal);
-        clone.switchBoard.entrySet().stream().forEach(entry -> switchBoard.put(entry.getKey(), entry.getValue()));
+        clone.switchBoard.entrySet().stream().forEach(entry ->
+                switchBoard.put(entry.getKey(), entry.getValue()));
     }
 
     public ConverterChain disable(Class<? extends ArgConverter> clazz) {

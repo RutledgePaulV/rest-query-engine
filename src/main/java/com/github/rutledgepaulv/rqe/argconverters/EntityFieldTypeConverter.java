@@ -1,20 +1,20 @@
 package com.github.rutledgepaulv.rqe.argconverters;
 
+import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
 import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
-import com.github.rutledgepaulv.rqe.contexts.PropertyPath;
 import com.github.rutledgepaulv.rqe.conversions.StringToTypeConverter;
 
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 public class EntityFieldTypeConverter implements ArgConverter {
 
-    private BiFunction<PropertyPath, Class<?>, Class<?>> fieldTypeResolver;
+    private BiFunction<FieldPath, Class<?>, Class<?>> fieldTypeResolver;
     private StringToTypeConverter converter;
 
-    public EntityFieldTypeConverter(BiFunction<PropertyPath, Class<?>, Class<?>> fieldTypeResolver, StringToTypeConverter converter) {
+    public EntityFieldTypeConverter(BiFunction<FieldPath, Class<?>, Class<?>> fieldTypeResolver, StringToTypeConverter converter) {
         this.fieldTypeResolver = fieldTypeResolver;
         this.converter = converter;
     }

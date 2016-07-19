@@ -1,15 +1,13 @@
 package com.github.rutledgepaulv.rqe.adapters;
 
+import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
-import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
-import com.github.rutledgepaulv.qbuilders.nodes.AndNode;
-import com.github.rutledgepaulv.qbuilders.nodes.ComparisonNode;
-import com.github.rutledgepaulv.qbuilders.nodes.OrNode;
-import com.github.rutledgepaulv.qbuilders.visitors.NodeVisitor;
+import com.github.rutledgepaulv.qbuilders.nodes.*;
+import com.github.rutledgepaulv.qbuilders.visitors.AbstractVoidContextNodeVisitor;
 
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 /**
  * This adapter allows for converting between a general tree with logical and leaf nodes into a
@@ -23,7 +21,7 @@ public class TreeToConditionAdapter implements Function<AbstractNode, Condition<
     }
 
 
-    private class QBuilderVisitor extends NodeVisitor<Condition<GeneralQueryBuilder>> {
+    private class QBuilderVisitor extends AbstractVoidContextNodeVisitor<Condition<GeneralQueryBuilder>> {
 
         @Override
         protected Condition<GeneralQueryBuilder> visit(AndNode node) {

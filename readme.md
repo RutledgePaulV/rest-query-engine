@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/RutledgePaulV/rest-query-engine.svg)](https://travis-ci.org/RutledgePaulV/rest-query-engine)
-[![Coverage Status](https://coveralls.io/repos/github/RutledgePaulV/rest-query-engine/badge.svg?branch=master)](https://coveralls.io/github/RutledgePaulV/rest-query-engine?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/RutledgePaulV/rest-query-engine/badge.svg?branch=develop)](https://coveralls.io/github/RutledgePaulV/rest-query-engine?branch=develop)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.rutledgepaulv/rest-query-engine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.rutledgepaulv/rest-query-engine)
 
 
@@ -70,6 +70,57 @@ public void predicate() {
 
 ```
 
+### Installation 
+
+#### Release Versions
+```xml
+<!-- production version not yet released -->
+```
+
+#### Snapshot Version
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.github.rutledgepaulv</groupId>
+        <artifactId>rest-query-engine</artifactId>
+        <version>0.6.3-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+
+
+<repositories>
+    <repository>
+        <id>ossrh</id>
+        <name>Repository for snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+
+#### Optional dependencies
+```xml
+<dependencies>
+    
+    <!-- only necessary if you're using the elasticsearch filter builder target type -->
+    <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>2.2.0</version>
+    </dependency>
+
+    <!-- only necessary if you're using the java.util.function.Predicate target type -->
+     <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.7.1</version>
+     </dependency>
+            
+</dependencies>
+```
 
 ### License
 
