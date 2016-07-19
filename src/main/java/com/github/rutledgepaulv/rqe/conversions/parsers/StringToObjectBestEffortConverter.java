@@ -1,14 +1,12 @@
 package com.github.rutledgepaulv.rqe.conversions.parsers;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.convert.WritingConverter;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Optional;
 
-@WritingConverter
 public class StringToObjectBestEffortConverter implements Converter<String, Object> {
 
     private static final DateTimeFormatter PARSER = DateTimeFormatter.ISO_DATE_TIME;

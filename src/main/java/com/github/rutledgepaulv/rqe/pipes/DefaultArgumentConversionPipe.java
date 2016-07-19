@@ -8,7 +8,7 @@ import com.github.rutledgepaulv.rqe.contexts.ParseTreeContext;
 import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
 import com.github.rutledgepaulv.rqe.conversions.StringToTypeConverter;
 import com.github.rutledgepaulv.rqe.operators.QueryOperator;
-import com.github.rutledgepaulv.rqe.resolvers.MongoPersistentEntityFieldTypeResolver;
+import com.github.rutledgepaulv.rqe.resolvers.EntityFieldTypeResolver;
 import com.github.rutledgepaulv.rqe.utils.TriFunction;
 import cz.jirutka.rsql.parser.ast.*;
 
@@ -25,7 +25,7 @@ public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>,
 
         private Function<String, Node> parsingPipe = new DefaultParsingPipe();
         private StringToTypeConverter stringToTypeConverter = new SpringConversionServiceConverter();
-        private BiFunction<FieldPath, Class<?>, Class<?>> fieldResolver = new MongoPersistentEntityFieldTypeResolver();
+        private BiFunction<FieldPath, Class<?>, Class<?>> fieldResolver = new EntityFieldTypeResolver();
         private List<ArgConverter> customConverters = new LinkedList<>();
 
         public DefaultArgumentConversionPipeBuilder useNonDefaultParsingPipe(Function<String, Node> parsingPipe) {
