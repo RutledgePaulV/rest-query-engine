@@ -4,7 +4,6 @@ import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
 import com.github.rutledgepaulv.rqe.testsupport.Comment;
 import com.github.rutledgepaulv.rqe.testsupport.User;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class MultiValueFieldsWithNestedObjectsTest extends TestBase {
@@ -32,7 +31,6 @@ public class MultiValueFieldsWithNestedObjectsTest extends TestBase {
     }
 
     @Test
-    @Ignore(value = "Known bug in predicate visitor prevents this from working like it should issue#10")
     public void propertiesOnObjectsInMultiValueField_predicate_notSubquery() {
 
         Condition<GeneralQueryBuilder> condition = pipeline.apply("comments.comment=='This is my first comment'", User.class);
@@ -42,7 +40,7 @@ public class MultiValueFieldsWithNestedObjectsTest extends TestBase {
         comment1.setComment("This is my first comment");
 
         Comment comment2 = new Comment();
-        comment1.setComment("This is my second comment");
+        comment2.setComment("This is my second comment");
 
         user.getComments().add(comment1);
         user.getComments().add(comment2);

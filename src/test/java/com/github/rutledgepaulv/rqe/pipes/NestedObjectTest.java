@@ -4,7 +4,6 @@ import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
 import com.github.rutledgepaulv.rqe.testsupport.State;
 import com.github.rutledgepaulv.rqe.testsupport.User;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class NestedObjectTest extends TestBase {
@@ -100,8 +99,6 @@ public class NestedObjectTest extends TestBase {
 
 
     @Test
-    @Ignore(value = "Fails to convert to enum type when reading back from json node. This is a limitation" +
-            " of using jackson for our predicate implementation. Really we should be using an object graph framework. Issue#9")
     public void enumPropertyOnNestedObject_predicate() {
         Condition<GeneralQueryBuilder> condition = pipeline.apply("address.state==ILLINOIS", User.class);
 
