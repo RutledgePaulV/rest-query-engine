@@ -74,7 +74,13 @@ public void predicate() {
 
 #### Release Versions
 ```xml
-<!-- production version not yet released -->
+<dependencies>
+    <dependency>
+        <groupId>com.github.rutledgepaulv</groupId>
+        <artifactId>rest-query-engine</artifactId>
+        <version>0.7</version>
+    </dependency>
+</dependencies>
 ```
 
 #### Snapshot Version
@@ -83,7 +89,7 @@ public void predicate() {
     <dependency>
         <groupId>com.github.rutledgepaulv</groupId>
         <artifactId>rest-query-engine</artifactId>
-        <version>0.6.3-SNAPSHOT</version>
+        <version>0.8-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
@@ -105,19 +111,19 @@ public void predicate() {
 ```xml
 <dependencies>
     
+    <!-- only necessary if you're using the spring data mongodb criteria target type -->
+    <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-mongodb</artifactId>
+        <version>1.9.2.RELEASE</version>
+    </dependency>
+
     <!-- only necessary if you're using the elasticsearch filter builder target type -->
     <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
-        <version>2.2.0</version>
+        <version>2.3.4</version>
     </dependency>
-
-    <!-- only necessary if you're using the java.util.function.Predicate target type -->
-     <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.7.1</version>
-     </dependency>
             
 </dependencies>
 ```
