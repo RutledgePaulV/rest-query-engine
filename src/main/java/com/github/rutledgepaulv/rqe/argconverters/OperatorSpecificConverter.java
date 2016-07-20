@@ -1,3 +1,13 @@
+/*
+ *  com.github.rutledgepaulv.rqe.argconverters.OperatorSpecificConverter
+ *  *
+ *  * Copyright (C) 2016 paul.rutledge
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.argconverters;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
@@ -10,8 +20,8 @@ import com.github.rutledgepaulv.rqe.utils.TriFunction;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static java.util.Collections.*;
-import static java.util.stream.Collectors.*;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 public class OperatorSpecificConverter implements ArgConverter {
 
@@ -32,6 +42,8 @@ public class OperatorSpecificConverter implements ArgConverter {
     @Override
     public List<?> apply(ArgConversionContext context) {
         switch(context.getQueryOperator()) {
+            case REGEX:
+                return context.getValues().stream().limit(1).map(Object::toString).collect(toList());
             case EXISTS:
                 return context.getValues().stream().map(Boolean::valueOf).collect(toList());
             case SUBQUERY_ANY:
