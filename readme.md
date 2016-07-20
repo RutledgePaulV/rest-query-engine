@@ -78,7 +78,7 @@ public void predicate() {
     <dependency>
         <groupId>com.github.rutledgepaulv</groupId>
         <artifactId>rest-query-engine</artifactId>
-        <version>0.7</version>
+        <version>0.7.1</version>
     </dependency>
 </dependencies>
 ```
@@ -89,7 +89,7 @@ public void predicate() {
     <dependency>
         <groupId>com.github.rutledgepaulv</groupId>
         <artifactId>rest-query-engine</artifactId>
-        <version>0.8-SNAPSHOT</version>
+        <version>0.7.2-SNAPSHOT</version>
     </dependency>
 </dependencies>
 
