@@ -1,8 +1,21 @@
+/*
+ *  com.github.rutledgepaulv.rqe.pipes.DefaultArgumentConversionPipe
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.nodes.AbstractNode;
 import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
-import com.github.rutledgepaulv.rqe.argconverters.*;
+import com.github.rutledgepaulv.rqe.argconverters.ArgConverter;
+import com.github.rutledgepaulv.rqe.argconverters.ConverterChain;
+import com.github.rutledgepaulv.rqe.argconverters.EntityFieldTypeConverter;
+import com.github.rutledgepaulv.rqe.argconverters.OperatorSpecificConverter;
 import com.github.rutledgepaulv.rqe.contexts.ArgConversionContext;
 import com.github.rutledgepaulv.rqe.contexts.ParseTreeContext;
 import com.github.rutledgepaulv.rqe.conversions.SpringConversionServiceConverter;
@@ -12,11 +25,14 @@ import com.github.rutledgepaulv.rqe.resolvers.EntityFieldTypeResolver;
 import com.github.rutledgepaulv.rqe.utils.TriFunction;
 import cz.jirutka.rsql.parser.ast.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 public class DefaultArgumentConversionPipe implements BiFunction<Node, Class<?>, AbstractNode>,
                                                       TriFunction<Node, Class<?>, ParseTreeContext, AbstractNode> {
