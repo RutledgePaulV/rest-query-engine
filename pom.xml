@@ -19,7 +19,7 @@
     </parent>
 
     <artifactId>rest-query-engine</artifactId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>0.7.1</version>
 
     <name>rest-query-engine</name>
     <url>http://github.com/rutledgepaulv/rest-query-engine</url>
