@@ -1,3 +1,13 @@
+/*
+ *  com.github.rutledgepaulv.rqe.pipes.TestBase
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
@@ -10,9 +20,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.function.Predicate;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public abstract class TestBase {
 

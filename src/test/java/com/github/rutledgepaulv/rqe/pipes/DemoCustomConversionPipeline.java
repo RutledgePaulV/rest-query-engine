@@ -1,3 +1,13 @@
+/*
+ *  com.github.rutledgepaulv.rqe.pipes.DemoCustomConversionPipeline
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.visitors.ElasticsearchVisitor;
@@ -9,7 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * {@see https://github.com/RutledgePaulV/rest-query-engine/issues/3}

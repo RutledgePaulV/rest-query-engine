@@ -1,3 +1,13 @@
+/*
+ *  com.github.rutledgepaulv.rqe.pipes.StandardFieldTest
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
@@ -29,9 +39,29 @@ public class StandardFieldTest extends TestBase {
                 "    \"firstName\" : \"Paul\"\n" +
                 "  }\n" +
                 "}");
-
     }
 
+
+    @Test
+    public void stringPropertyOnRootObjectRegex() {
+
+        Condition<GeneralQueryBuilder> condition1 = pipeline.apply("firstName=re=.*Paul$", User.class);
+
+        assertPredicate(condition1, new User().setFirstName("Paul"));
+
+        assertNotPredicate(condition1, new User().setFirstName("Joe"));
+
+        assertMongo(condition1, "{ \"firstName\" : { \"$regex\" : \".*Paul$\"}}");
+
+        assertElasticsearch(condition1, "{\n" +
+                "  \"regexp\" : {\n" +
+                "    \"firstName\" : {\n" +
+                "      \"value\" : \".*Paul$\",\n" +
+                "      \"flags_value\" : 65535\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+    }
 
     @Test
     public void numberPropertyOnRootObject() {

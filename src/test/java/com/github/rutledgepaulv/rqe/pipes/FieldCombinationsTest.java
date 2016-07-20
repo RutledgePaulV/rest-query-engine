@@ -1,13 +1,27 @@
+/*
+ *  com.github.rutledgepaulv.rqe.pipes.FieldCombinationsTest
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.pipes;
 
 import com.github.rutledgepaulv.qbuilders.builders.GeneralQueryBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
-import com.github.rutledgepaulv.qbuilders.visitors.*;
-import com.github.rutledgepaulv.rqe.testsupport.*;
+import com.github.rutledgepaulv.qbuilders.visitors.ElasticsearchVisitor;
+import com.github.rutledgepaulv.qbuilders.visitors.MongoVisitor;
+import com.github.rutledgepaulv.qbuilders.visitors.RSQLVisitor;
+import com.github.rutledgepaulv.rqe.testsupport.CommentQuery;
+import com.github.rutledgepaulv.rqe.testsupport.User;
+import com.github.rutledgepaulv.rqe.testsupport.UserQuery;
 import org.junit.Test;
 
-import static java.time.Instant.*;
-import static org.junit.Assert.*;
+import static java.time.Instant.EPOCH;
+import static org.junit.Assert.assertEquals;
 
 public class FieldCombinationsTest extends TestBase {
 

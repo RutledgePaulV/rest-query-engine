@@ -1,9 +1,22 @@
+/*
+ *  com.github.rutledgepaulv.rqe.contexts.ParseTreeContext
+ *  *
+ *  * Copyright (C) 2016 Paul Rutledge <paul.v.rutledge@gmail.com>
+ *  *
+ *  * This software may be modified and distributed under the terms
+ *  * of the MIT license.  See the LICENSE file for details.
+ *
+ */
+
 package com.github.rutledgepaulv.rqe.contexts;
 
 import com.github.rutledgepaulv.qbuilders.nodes.LogicalNode;
 import com.github.rutledgepaulv.qbuilders.structures.FieldPath;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ParseTreeContext {
 
