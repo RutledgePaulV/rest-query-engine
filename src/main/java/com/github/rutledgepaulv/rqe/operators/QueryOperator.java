@@ -27,8 +27,8 @@ public enum QueryOperator {
     NOT_IN(RSQLOperators.NOT_IN, com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator.NIN),
     EXISTS(new ComparisonOperator("=ex="), com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator.EX),
     REGEX(new ComparisonOperator("=re="), com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator.RE),
-    SUBQUERY_ANY(new ComparisonOperator("=q="), com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator.SUB_CONDITION_ANY);
-
+    SUBQUERY_ANY(new ComparisonOperator("=q="), com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator.SUB_CONDITION_ANY),
+    LIKE(new ComparisonOperator("=like="),  LikeStringFieldImpl.LIKE);
 
     private ComparisonOperator parserOperator;
     private com.github.rutledgepaulv.qbuilders.operators.ComparisonOperator qbuilderOperator;
